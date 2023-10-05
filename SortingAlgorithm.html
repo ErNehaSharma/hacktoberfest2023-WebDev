@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorting Algorithm Visualization</title>
+    <style>
+        .container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .array {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            height: 300px;
+            width: 100%;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+        }
+
+        .array-bar {
+            width: 20px;
+            background-color: #3498db;
+            margin: 0 2px;
+            transition: height 0.2s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div>
+            <label for="inputArray">Enter comma-separated values:</label>
+            <input type="text" id="inputArray">
+            <button onclick="sortArray()">Sort</button>
+        </div>
+        <div>
+            <label for="sortingAlgorithm">Choose a sorting algorithm:</label>
+            <select id="sortingAlgorithm">
+                <option value="bubbleSort">Bubble Sort</option>
+                <option value="selectionSort">Selection Sort</option>
+                <option value="insertionSort">Insertion Sort</option>
+                <option value="quickSort">Quick Sort</option>
+                <option value="mergeSort">Merge Sort</option>
+            </select>
+        </div>
+        <div>
+            <p>Original Array:</p>
+            <p id="originalArray"></p>
+        </div>
+        <div class="array" id="sortable-array">
+            <!-- Array elements will be generated dynamically here -->
+        </div>
+        <div>
+            <p>Sorted Array:</p>
+            <p id="sortedArray"></p>
+        </div>
+    </div>
+
+    <script>
+        // Function to visualize the array
+        function visualizeArray(array) {
+            const arrayContainer = document.getElementById("sortable-array");
+            arrayContainer.innerHTML = "";
+
+            array.forEach((value) => {
+                const bar = document.createElement("div");
+                bar.className = "array-bar";
+                bar.style.height = `${value}px`;
+                arrayContainer.appendChild(bar);
+            });
+        }
+
+        // Bubble Sort
+        function bubbleSort(array) {
+            let n = array.length;
+            for (let i = 0; i < n - 1; i++) {
+                for (let j = 0; j < n - i - 1; j++) {
+                    if (array[j] > array[j + 1]) {
+                        // Swap array[j] and array[j + 1]
+                        let temp = array[j];
+                        array[j] = array[j + 1];
+                        array[j + 1] = temp;
+                        visualizeArray(array); // Update visualization after each swap
+                    }
+                }
+            }
+            document.getElementById("sortedArray").innerText = array.join(', ');
+        }
+
+        // Selection Sort
+        function selectionSort(array) {
+            let n = array.length;
+            for (let i = 0; i < n - 1; i++) {
+                let minIndex = i;
+                for (let j = i + 1; j < n; j++) {
+                    if (array[j] < array[minIndex]) {
+                        minIndex = j;
+                    }
+                }
+                // Swap array[i] and array[minIndex]
+                let temp = array[i];
+                array[i] = array[minIndex];
+                array[minIndex] = temp;
+                visualizeArray(array); // Update visualization after each swap
+            }
+            document.getElementById("sortedArray").innerText = array.join(', ');
+        }
+
+        // Insertion Sort
+        function insertionSort(array) {
+            let n = array.length;
+            for (let i = 1; i < n; i++) {
+                let key = array[i];
+                let j = i - 1;
+                while (j >= 0 && array[j] > key) {
+                    array[j + 1] = array[j];
+                    j--;
+                }
+                array[j + 1] = key;
+                visualizeArray(array); // Update visualization after each swap
+            }
+            document.getElementById("sortedArray").innerText = array.join(', ');
+        }
+
+        // Quick Sort
+        function quickSort(array) {
+            if (array.length <= 1) {
+                return array;
+            }
+
+            const pivot = array[array.length - 1];
+            const left = [];
+            const right = [];
+
+            for (let i = 0; i < array.length - 1; i++) {
+                if (array[i] < pivot) {
+                    left.push(array[i]);
+                } else {
+                    right.push(array[i]);
+                }
+            }
+
+            const sortedLeft = quickSort(left);
+            const sortedRight = quickSort(right);
+
+            const sortedArray = [...sortedLeft, pivot, ...sortedRight];
+            visualizeArray(sortedArray);
+            document.getElementById("sortedArray").innerText = sortedArray.join(', ');
+
+            return sortedArray;
+        }
+
+        // Merge Sort
+        function mergeSort(array) {
+            if (array.length <= 1) {
+                return array;
+            }
+
+            const middle = Math.floor(array.length / 2);
+            const left = array.slice(0, middle);
+            const right = array.slice(middle);
+
+            function merge(left, right) {
+                let result = [];
+                let leftIndex = 0;
+                let rightIndex = 0;
+
+                while (leftIndex < left.length && rightIndex < right.length) {
+                    if (left[leftIndex] < right[rightIndex]) {
+                        result.push(left[leftIndex]);
+                        leftIndex++;
+                    } else {
+                        result.push(right[rightIndex]);
+                        rightIndex++;
+                    }
+                }
+
+                return result.concat(left.slice(leftIndex), right.slice(rightIndex));
+            }
+
+            const sortedLeft = mergeSort(left);
+            const sortedRight = mergeSort(right);
+
+            const sortedArray = merge(sortedLeft, sortedRight);
+            visualizeArray(sortedArray);
+            document.getElementById("sortedArray").innerText = sortedArray.join(', ');
+
+            return sortedArray;
+        }
+
+        // Sorting function based on user's choice
+        function sortArray() {
+            const inputArray = document.getElementById("inputArray").value;
+            const array = inputArray.split(",").map(Number);
+            document.getElementById("originalArray").innerText = array.join(', '); // Display the original array
+            const selectedAlgorithm = document.getElementById("sortingAlgorithm").value;
+
+            switch (selectedAlgorithm) {
+                case "bubbleSort":
+                    bubbleSort(array.slice()); // Pass a copy of the array to avoid modifying the original
+                    break;
+                case "selectionSort":
+                    selectionSort(array.slice()); // Pass a copy of the array to avoid modifying the original
+                    break;
+                case "insertionSort":
+                    insertionSort(array.slice()); // Pass a copy of the array to avoid modifying the original
+                    break;
+                case "quickSort":
+                    quickSort(array.slice()); // Pass a copy of the array to avoid modifying the original
+                    break;
+                case "mergeSort":
+                    mergeSort(array.slice()); // Pass a copy of the array to avoid modifying the original
+                    break;
+                default:
+                    alert("Please select a sorting algorithm.");
+            }
+        }
+    </script>
+</body>
+</html>
